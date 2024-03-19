@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+  <%- include('../components/head') %>
+  <body>
+    <!-- navbar-->
+    <%- include('../components/header') %>
+    <link rel="stylesheet" href="/backend/css/datatables/datatables.min.css" />
+    <link
+      rel="stylesheet"
+      href="/backend/css/datatables/datatables.bootstrap5.min.css"
+    />
+    <div class="d-flex align-items-stretch">
+      <%- include('../components/sidebar') %>
+      <div class="page-holder bg-gray-10">
+        <div class="container-fluid px-lg-4 px-xl-5">
+          <div
+            class="page-header d-flex justify-content-between align-items-center"
+          >
+            <div>
+              <h3>Manajemen Produk</h3>
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary btn-add">
+                <i class="fa fa-plus me-2"> </i>
+                Tambah Produk
+              </button>
+            </div>
+          </div>
+          <section>
+            <div class="card mb-4">
+              <div class="card-body text-muted">
+                <table class="table" id="table-products">
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Nama</th>
+                      <th>Harga</th>
+                      <th>Gambar</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade text-start"
+      id="modalProduct"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modalProductLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header border-0 bg-gray-100">
+            <h5 class="modal-title text-center" id="modalProductTitle">
+              Tambah Produk
+            </h5>
+            <button
+              class="btn-close"
+              type="button"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form method="POST" id="form-product">
+              <div class="mb-3">
+                <label>Nama</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  name="nama"
+                  id="nama"
+                  placeholder="Nama Produk"
+                />
+              </div>
+              <div class="mb-3">
+                <label>Harga</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  name="harga"
+                  id="harga"
+                  placeholder="8xxxx"
+                />
+              </div>
+              <button
+                class="btn btn-primary btn-save"
+                type="submit"
+                style="min-width: 100%"
+              >
+                Save changes
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%- include('../components/footerlink') %>
+    <script src="/backend/js/datatables/datatables.min.js"></script>
+    <script src="/backend/js/datatables/datatables.bootstrap5.min.js"></script>
+    <script src="/backend/library/sweetalert/dist/sweetalert.min.js"></script>
+  </body>
+  <script>
+    var id = null;
+    var urlApi = "http://localhost:8000/products";
+    var table = new DataTable("#table-products", {
+      responsive: true,
+      order: [[0, "desc"]],
+      language: {
+        searchPlaceholder: "Search...",
+        sSearch: "",
+        lengthMenu: "_MENU_ ",
+      },
+      pageLength: 10,
+      aLengthMenu: [
+        [10, 25, 50, 100, 200, -1],
+        [10, 25, 50, 100, 200, "Semua Data"],
+      ],
+      iDisplayLength: 5,
+      scrollX: false,
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: urlApi + "/view/datatables",
+        type: "POST",
+        data: function (d) {},
+      },
+      rowCallback: function (row, data, index) {
+        $("td:eq(0)", row).html(index + 1);
+      },
+      columns: [
+        {
+          data: "created_at",
+          render: function (data, type, row, meta) {
+            return row.created_at;
+          },
+        },
+        { data: "nama", name: "nama" },
+        {
+          data: "harga",
+          render: function (data, type, row, meta) {
+            return rupiahFormat(row.harga);
+          },
+        },
+        {
+          data: "gambar",
+          render: function (data, type, row, meta) {
+            return row.gambar;
+          },
+        },
+        {
+          data: "status",
+          render: function (data, type, row, meta) {
+            var response;
+            if (row.status == "active") {
+              response = `
+              <span class="badge" style="background-color: #479F77">AKTIF</span>
+              `;
+            } else if (row.status == "unactive") {
+              response = `
+              <span class="badge" style="background-color: #D83B56">TIDAK AKTIF</span>
+              `;
+            } else {
+              response = `
+              <span class="badge" style="background-color: #D83B56">TIDAK DIKETAHUI</span>
+              `;
+            }
+            return response;
+          },
+        },
+        {
+          data: "id",
+          render: function (data, type, row, meta) {
+            return (
+              `
+              <button type="button" style="margin-bottom: 5px" class="btn btn-primary btn-sm btn-view" data-id="` +
+              row.id +
+              `" data-nama="` +
+              row.id +
+              `">
+                  <i class="fa fa-eye"></i>
+              </button>
+              <button type="button" style="margin-bottom: 5px" class="btn btn-success btn-sm btn-edit" data-id="` +
+              row.id +
+              `" data-nama="` +
+              row.id +
+              `">
+                  <i class="fa fa-edit"></i>
+              </button>
+              <button type="button" style="margin-bottom: 5px" class="btn btn-danger btn-sm btn-delete" data-id="` +
+              row.id +
+              `" data-nama="` +
+              row.nama +
+              `">
+                  <i class="fa fa-trash"></i>
+              </button>
+              `
+            );
+          },
+        },
+      ],
+    });
+
+    $(".btn-add").on("click", function () {
+      $("#form-product")[0].reset();
+      $("#modalProductTitle").html("Tambah Produk");
+      $(".btn-save").show();
+      $("#modalProduct").modal("show");
+    });
+
+    $("#table-products tbody").on("click", ".btn-view", function () {
+      id = $(this).data("id");
+
+      $.ajax({
+        url: `${urlApi}/${id}`,
+        type: "GET",
+        contentType: false,
+        processData: false,
+        success: function (result) {
+          $("#nama").val(result.data.nama);
+          $("#harga").val(result.data.harga);
+
+          $("#modalProductTitle").html("Detail Produk");
+          $(".btn-save").hide();
+          $("#modalProduct").modal("show");
+        },
+        error: function (jqXHR, textStatus, errorThrown) {},
+      });
+    });
+
+    $("#table-products tbody").on("click", ".btn-edit", function () {
+      id = $(this).data("id");
+
+      $.ajax({
+        url: `${urlApi}/${id}`,
+        type: "GET",
+        contentType: false,
+        processData: false,
+        success: function (result) {
+          $("#nama").val(result.data.nama);
+          $("#harga").val(result.data.harga);
+
+          $("#modalProductTitle").html("Ubah Produk");
+          $(".btn-save").show();
+          $("#modalProduct").modal("show");
+        },
+        error: function (jqXHR, textStatus, errorThrown) {},
+      });
+    });
+
+    $("#table-products tbody").on("click", ".btn-delete", function () {
+      var id = $(this).data("id");
+      var nama = $(this).data("nama");
+      swal({
+        title: "Konfirmasi Hapus",
+        text: "Apakah kamu yakin menghapus " + nama + "?",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          $.ajax({
+            url: urlApi + "/" + id,
+            type: "DELETE",
+            success: function (result) {
+              swal("Berhasil Hapus Data", {
+                icon: "success",
+              });
+              table.draw();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              swal("Hapus Data Gagal", {
+                icon: "danger",
+              });
+            },
+          });
+        }
+      });
+    });
+
+    $("#form-product").on("submit", function (e) {
+      e.preventDefault();
+
+      var formData = new FormData(this);
+
+      if ($("#nama").val() == "") {
+        swal("Simpan Data Gagal", {
+          icon: "error",
+          text: "Nama tidak boleh kosong",
+        });
+
+        return false;
+      }
+
+      swal({
+        title: "Simpan data ini?",
+        text: "Data yang diisikan sudah sesuai?",
+        icon: "info",
+        buttons: true,
+      }).then((willSave) => {
+        if (willSave) {
+          $.ajax({
+            url: urlApi + (id !== null ? `/${id}` : ""),
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (result) {
+              if (result.code == 200) {
+                swal("Berhasil Simpan Data", {
+                  icon: "success",
+                }).then((data) => {
+                  $("#modalProduct").modal("hide");
+                  $("#form-product")[0].reset();
+                  table.ajax.reload();
+                  id = null;
+                });
+              } else {
+                swal("Simpan Data Gagal", {
+                  icon: "error",
+                });
+              }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              swal("Simpan Data Gagal", {
+                icon: "error",
+                text: "Periksa kembali data yang diisikan.",
+              });
+            },
+          });
+        }
+      });
+    });
+  </script>
+</html>

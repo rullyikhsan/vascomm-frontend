@@ -1,0 +1,81 @@
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>VASCOMM ADMIN</title>
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <!-- Google fonts - Popppins for copy-->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&amp;display=swap"
+    rel="stylesheet"
+  />
+  <!-- Prism Syntax Highlighting-->
+  <link
+    rel="stylesheet"
+    href="/backend/vendor/prismjs/plugins/toolbar/prism-toolbar.css"
+  />
+  <link
+    rel="stylesheet"
+    href="/backend/vendor/prismjs/themes/prism-okaidia.css"
+  />
+  <!-- The Main Theme stylesheet (Contains also Bootstrap CSS)-->
+  <link
+    rel="stylesheet"
+    href="/backend/css/style.default.63c85ff9.css"
+    id="theme-stylesheet"
+  />
+  <!-- Custom stylesheet - for your changes-->
+  <link rel="stylesheet" href="/backend/css/custom.0a822280.css" />
+  <!-- Favicon-->
+  <link rel="shortcut icon" href="/backend/img/favicon.png" />
+  <script>
+    function rupiahFormat(number) {
+      // Convert number to string
+      let numStr = number.toString();
+
+      // Split the number into integer and decimal parts
+      let parts = numStr.split(".");
+
+      // Add dots to integer part
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+      // Join integer and decimal parts and return
+      return "Rp " + parts.join(".");
+    }
+
+    function indonesiaFormatDate(inputDate) {
+      // Split the input date string into date and time parts
+      let parts = inputDate.split(" ");
+
+      // Split the date part into year, month, and day
+      let dateParts = parts[0].split("-");
+      let year = parseInt(dateParts[0]);
+      let month = parseInt(dateParts[1]);
+      let day = parseInt(dateParts[2]);
+
+      // Convert month number to month name abbreviation
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "Mei",
+        "Jun",
+        "Jul",
+        "Agu",
+        "Sep",
+        "Okt",
+        "Nov",
+        "Des",
+      ];
+      let monthName = months[month - 1];
+
+      // Format the date as 'DD MonthName YYYY'
+      let formattedDate = `${day} ${monthName} ${year}`;
+
+      return formattedDate;
+    }
+  </script>
+</head>
